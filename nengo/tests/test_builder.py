@@ -5,6 +5,7 @@ import pytest
 
 import nengo
 import nengo.builder
+from nengo.utils.compat import itervalues
 
 
 def test_seeding():
@@ -138,6 +139,18 @@ def test_signaldict():
     # Order not guaranteed for dicts, so we have to loop
     for k in signaldict:
         assert "%s %s" % (repr(k), repr(signaldict[k])) in str(signaldict)
+
+
+def test_commonsig_readonly():
+    """Test that the common signals cannot be modified."""
+    net = nengo.Network(label="test_commonsig")
+    sim = nengo.Simulator(net)
+    for sig in itervalues(sim.model.sig['common']):
+        sim.signals.init(sig, sig.value)
+        with pytest.raises(ValueError):
+            sim.signals[sig] = np.array([-1])
+        with pytest.raises(ValueError):
+            sim.signals[sig][...] = np.array([-1])
 
 
 if __name__ == '__main__':

@@ -915,8 +915,10 @@ def build_network(network, model):  # noqa: C901
     """
     if model.toplevel is None:
         model.toplevel = network
-        model.sig['common'][0] = Signal(0.0, name='Common: Zero')
-        model.sig['common'][1] = Signal(1.0, name='Common: One')
+        model.sig['common'][0] = Signal(
+            npext.array(0.0, readonly=True), name='Common: Zero')
+        model.sig['common'][1] = Signal(
+            npext.array(1.0, readonly=True), name='Common: One')
 
     logger.info("Network step 1: Building ensembles and nodes")
     for obj in network.ensembles + network.nodes:
