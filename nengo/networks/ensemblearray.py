@@ -104,7 +104,8 @@ class EnsembleArray(nengo.Network):
             func_sizes = np.zeros(len(function)+1)
             for i, func in enumerate(function):
                 func_sizes[i+1] = np.asarray(
-                        func(np.zeros(self.dimensions_per_ensemble))).size
+                    func(np.zeros(self.dimensions_per_ensemble))
+                ).size
             dim = int(np.sum(func_sizes))
             output = nengo.Node(output=None, size_in=dim, label=name)
             setattr(self, name, output)
@@ -113,8 +114,9 @@ class EnsembleArray(nengo.Network):
                 dim_index_start = np.sum(func_sizes[:(i+1)])
                 dim_index_end = np.sum(func_sizes[:(i+2)])
                 nengo.Connection(
-                        e, output[dim_index_start:dim_index_end],
-                        function=function[i], synapse=synapse, **conn_kwargs)
+                    e, output[dim_index_start:dim_index_end],
+                    function=function[i], synapse=synapse, **conn_kwargs
+                )
         else:
             if function is None:
                 function_d = self.dimensions_per_ensemble
