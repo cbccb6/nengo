@@ -88,6 +88,58 @@ def _mmul_transforms(A_shape, B_shape, C_dim):
     return transformA, transformB
 
 
+def test_multifunc(Simulator, plt, seed, rng):
+    """Test an ensemble array with different functions computed
+    by each ensemble"""
+    dims = 3
+    n_neurons = 60
+
+    a = rng.uniform(low=-0.7, high=0.7, size=dims)
+
+    functions = [lambda x: [x*2],
+                 lambda x: [-x, -x*2],
+                 lambda x: [.5*x]]
+
+    b = []
+    for i, func in enumerate(functions):
+        b += functions[i](a[i])
+
+    model = nengo.Network(seed=seed)
+    with model:
+        inputA = nengo.Node(a)
+        A = nengo.networks.EnsembleArray(n_neurons, dims)
+        B = nengo.Ensemble(1, dimensions=dims+1, neuron_type=nengo.Direct())
+
+        A_funcs = A.add_output('multiple functions', function=functions)
+
+        nengo.Connection(inputA, A.input)
+        nengo.Connection(A_funcs, B)
+
+        A_p = nengo.Probe(A.output, synapse=0.03)
+        B_p = nengo.Probe(B, synapse=0.03)
+
+    sim = Simulator(model)
+    sim.run(0.4)
+
+    t = sim.trange()
+
+    def plot(sim, a, p, title=""):
+        a_ref = np.tile(a, (len(t), 1))
+        a_sim = sim.data[p]
+        colors = ['b', 'g', 'r', 'c']
+        for i in range(a_sim.shape[1]):
+            plt.plot(t, a_ref[:, i], '--', color=colors[i % 6])
+            plt.plot(t, a_sim[:, i], '-', color=colors[i % 6])
+        plt.xticks(np.linspace(0, 0.4, 5))
+        plt.xlim(right=t[-1])
+        plt.title(title)
+
+    plt.subplot(121)
+    plot(sim, a, A_p, title="A")
+    plt.subplot(122)
+    plot(sim, b, B_p, title="B")
+
+
 def test_matrix_mul(Simulator, plt, seed):
     N = 100
 
