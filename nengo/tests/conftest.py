@@ -20,6 +20,36 @@ def pytest_configure(config):
     rc.set('decoder_cache', 'enabled', 'false')
 
 
+def pytest_addoption(parser):
+    parser.addoption('--benchmarks', action='store_true', default=False,
+                     help='Also run benchmarking tests')
+    parser.addoption('--plots', action='store_true', default=False,
+                     help='Also run plotting tests')
+    parser.addoption('--noexamples', action='store_false', default=True,
+                     help='Do not run examples')
+    parser.addoption('--slow', action='store_true', default=False,
+                     help='Also run slow tests.')
+
+
+def pytest_runtest_setup(item):
+    for mark, option, message in [
+            ('benchmark', 'benchmarks', "benchmarks not requested"),
+            ('example', 'noexamples', "examples not requested"),
+            ('plot', 'plots', "plots not requested"),
+            ('slow', 'slow', "slow tests not requested")]:
+        if getattr(item.obj, mark, None) and not item.config.getvalue(option):
+            pytest.skip(message)
+
+
+def pytest_generate_tests(metafunc):
+    if "nl" in metafunc.funcargnames:
+        metafunc.parametrize(
+            "nl", [Direct, LIF, LIFRate, RectifiedLinear, Sigmoid])
+    if "nl_nodirect" in metafunc.funcargnames:
+        metafunc.parametrize(
+            "nl_nodirect", [LIF, LIFRate, RectifiedLinear, Sigmoid])
+
+
 @pytest.fixture(scope="session")
 def Simulator(request):
     """the Simulator class being tested.
@@ -99,34 +129,3 @@ def seed(request):
     tests are not dependent on specific seeds.
     """
     return function_seed(request.function, mod=test_seed)
-
-
-def pytest_generate_tests(metafunc):
-    if "nl" in metafunc.funcargnames:
-        metafunc.parametrize(
-            "nl", [Direct, LIF, LIFRate, RectifiedLinear, Sigmoid])
-    if "nl_nodirect" in metafunc.funcargnames:
-        metafunc.parametrize(
-            "nl_nodirect", [LIF, LIFRate, RectifiedLinear, Sigmoid])
-
-
-def pytest_addoption(parser):
-    parser.addoption('--benchmarks', action='store_true', default=False,
-                     help='Also run benchmarking tests')
-    parser.addoption('--plots', action='store_true', default=False,
-                     help='Also run plotting tests')
-    parser.addoption('--noexamples', action='store_false', default=True,
-                     help='Do not run examples')
-    parser.addoption(
-        '--slow', action='store_true', default=False,
-        help='Also run slow tests.')
-
-
-def pytest_runtest_setup(item):
-    for mark, option, message in [
-            ('benchmark', 'benchmarks', "benchmarks not requested"),
-            ('example', 'noexamples', "examples not requested"),
-            ('plot', 'plots', "plots not requested"),
-            ('slow', 'slow', "slow tests not requested")]:
-        if getattr(item.obj, mark, None) and not item.config.getvalue(option):
-            pytest.skip(message)
