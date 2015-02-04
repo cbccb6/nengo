@@ -1,5 +1,6 @@
 import numpy as np
 
+from nengo.rc import rc
 from nengo.utils.compat import is_integer, is_number, range
 
 
@@ -21,7 +22,7 @@ class SemanticPointer(object):
             except:
                 raise Exception("Must specify either the data or the length "
                                 "for a SemanticPointer.")
-            self.v = np.array(data, dtype=float)
+            self.v = np.array(data, dtype=rc.get('precision', 'dtype'))
             if len(self.v.shape) != 1:
                 raise Exception("data must be a vector")
 

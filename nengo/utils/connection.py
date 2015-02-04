@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
-import numpy as np
-
+import nengo
 from . import numpy as npext
 
 
@@ -38,8 +37,9 @@ def target_function(eval_points, targets):
                      **target_function(eval_points, targets)
     """
 
-    eval_points = npext.array(eval_points, dtype=np.float64, min_dims=2)
-    targets = npext.array(targets, dtype=np.float64, min_dims=2)
+    dtype = nengo.rc.get('precision', 'dtype')
+    eval_points = npext.array(eval_points, dtype=dtype, min_dims=2)
+    targets = npext.array(targets, dtype=dtype, min_dims=2)
 
     if len(eval_points) != len(targets):
         raise ValueError("Number of evaluation points %s "

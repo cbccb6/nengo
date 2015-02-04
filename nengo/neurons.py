@@ -55,9 +55,9 @@ class NeuronType(object):
 
         Parameters
         ----------
-        max_rates : ndarray(dtype=float64)
+        max_rates : ndarray
             Maximum firing rates of neurons.
-        intercepts : ndarray(dtype=float64)
+        intercepts : ndarray
             X-intercepts of neurons.
         """
         J_max = 0

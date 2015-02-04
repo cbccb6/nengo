@@ -8,6 +8,7 @@ from nengo.learning_rules import LearningRuleType, LearningRuleTypeParam
 from nengo.node import Node
 from nengo.params import (Default, BoolParam, DistributionParam, FunctionParam,
                           IntParam, ListParam, NdarrayParam)
+from nengo.rc import rc
 from nengo.solvers import LstsqL2, SolverParam
 from nengo.synapses import Lowpass, SynapseParam
 from nengo.utils.compat import is_iterable, iteritems
@@ -100,7 +101,7 @@ class TransformParam(NdarrayParam):
         super(TransformParam, self).__init__(default, (), optional, readonly)
 
     def validate(self, conn, transform):
-        transform = np.asarray(transform, dtype=np.float64)
+        transform = np.asarray(transform, dtype=rc.get('precision', 'dtype'))
 
         if transform.ndim == 0:
             self.shape = ()

@@ -33,6 +33,9 @@ logger = logging.getLogger(__name__)
 # The default core Nengo RC settings. Access with
 #   nengo.RC_DEFAULTS[section_name][option_name]
 RC_DEFAULTS = {
+    'precision': {
+        'dtype': 'float64',
+    },
     'decoder_cache': {
         'enabled': True,
         'readonly': False,

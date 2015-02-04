@@ -13,6 +13,7 @@ from nengo.connection import Connection
 from nengo.ensemble import Ensemble, Neurons
 from nengo.neurons import Direct
 from nengo.node import Node
+from nengo.rc import rc
 from nengo.utils.builder import full_transform
 
 
@@ -110,7 +111,7 @@ def build_connection(model, conn):
         if conn.solver.weights:
             # account for transform
             targets = np.dot(targets, transform.T)
-            transform = np.array(1., dtype=np.float64)
+            transform = np.array(1., dtype=rc.get('precision', 'dtype'))
 
             decoders, solver_info = solver(
                 activities, targets, rng=rng,

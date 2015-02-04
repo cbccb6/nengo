@@ -5,6 +5,7 @@ import numpy as np
 import nengo.utils.numpy as npext
 from nengo.base import NengoObject, ObjView
 from nengo.params import Default, IntParam, ListParam, Parameter, StringParam
+from nengo.rc import rc
 from nengo.utils.stdlib import checked_call
 
 
@@ -31,8 +32,8 @@ class OutputParam(Parameter):
             node.size_out = 0 if result is None else result.size
         else:
             # Make into correctly shaped numpy array before validation
-            output = npext.array(
-                output, min_dims=1, copy=False, dtype=np.float64)
+            dtype = rc.get('precision', 'dtype')
+            output = npext.array(output, min_dims=1, copy=False, dtype=dtype)
             self.validate_ndarray(node, output)
             node.size_out = output.size
 

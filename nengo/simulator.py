@@ -15,6 +15,7 @@ import nengo.utils.numpy as npext
 from nengo.builder import Model
 from nengo.builder.signal import SignalDict
 from nengo.cache import get_default_decoder_cache
+from nengo.rc import rc
 from nengo.utils.compat import range
 from nengo.utils.graphs import toposort
 from nengo.utils.progress import ProgressTracker
@@ -116,7 +117,8 @@ class Simulator(object):
         self.rng = np.random.RandomState(self.seed)
 
         # -- map from Signal.base -> ndarray
-        self.signals = SignalDict(__time__=np.asarray(0.0, dtype=np.float64))
+        dtype = rc.get('precision', 'dtype')
+        self.signals = SignalDict(__time__=np.asarray(0.0, dtype=dtype))
         for op in self.model.operators:
             op.init_signals(self.signals)
 

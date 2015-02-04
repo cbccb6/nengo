@@ -5,6 +5,7 @@ import numpy as np
 
 from nengo.builder.signal import SignalDict
 from nengo.cache import NoDecoderCache
+from nengo.rc import rc
 
 
 class Model(object):
@@ -36,7 +37,8 @@ class Model(object):
     def add_op(self, op):
         self.operators.append(op)
         # Fail fast by trying make_step with a temporary sigdict
-        signals = SignalDict(__time__=np.asarray(0.0, dtype=np.float64))
+        signals = SignalDict(__time__=np.asarray(
+            0.0, dtype=rc.get('precision', 'dtype')))
         op.init_signals(signals)
         op.make_step(signals, self.dt, np.random)
 

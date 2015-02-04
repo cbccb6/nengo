@@ -2,7 +2,8 @@ import warnings
 
 import numpy as np
 
-import nengo
+from nengo.params import Parameter
+from nengo.rc import rc
 from nengo.spa import pointer
 from nengo.utils.compat import is_iterable, is_number, is_integer, range
 
@@ -75,7 +76,8 @@ class Vocabulary(object):
         self.pointers = {}
         self.keys = []
         self.key_pairs = None
-        self.vectors = np.zeros((0, dimensions), dtype=float)
+        self.vectors = np.zeros((0, dimensions),
+                                dtype=rc.get('precision', 'dtype'))
         self.vector_pairs = None
         self._include_pairs = None
         self.include_pairs = include_pairs
@@ -176,7 +178,8 @@ class Vocabulary(object):
         self._include_pairs = value
         if self._include_pairs:
             self.key_pairs = []
-            self.vector_pairs = np.zeros((0, self.dimensions), dtype=float)
+            self.vector_pairs = np.zeros((0, self.dimensions),
+                                         dtype=rc.get('precision', 'dtype'))
             for i in range(1, len(self.keys)):
                 for k in self.keys[:i]:
                     key = self.keys[i]
@@ -258,7 +261,7 @@ class Vocabulary(object):
         if isinstance(v, pointer.SemanticPointer):
             v = v.v
         else:
-            v = np.array(v, dtype='float')
+            v = np.array(v, dtype=rc.get('precision', 'dtype'))
 
         if normalize:
             nrm = np.linalg.norm(v)
@@ -334,7 +337,8 @@ class Vocabulary(object):
                 if k not in keys:
                     keys.append(k)
 
-        t = np.zeros((other.dimensions, self.dimensions), dtype=float)
+        t = np.zeros((other.dimensions, self.dimensions),
+                     dtype=rc.get('precision', 'dtype'))
         for k in keys:
             a = self[k].v
             b = other[k].v
@@ -409,7 +413,7 @@ class Vocabulary(object):
         return result
 
 
-class VocabularyParam(nengo.params.Parameter):
+class VocabularyParam(Parameter):
     """Can be a Vocabulary."""
 
     def validate(self, instance, vocab):

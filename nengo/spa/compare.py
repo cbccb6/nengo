@@ -2,6 +2,7 @@ import numpy as np
 
 import nengo
 from nengo.dists import Choice
+from nengo.rc import rc
 from nengo.spa.module import Module
 from nengo.utils.compat import range
 
@@ -50,8 +51,9 @@ class Compare(Module):
         self.inputs = dict(A=(self.inputA, vocab), B=(self.inputB, vocab))
         self.outputs = dict(default=(self.output, vocab))
 
-        t1 = np.zeros((dimensions * 2, dimensions), dtype='float')
-        t2 = np.zeros((dimensions * 2, dimensions), dtype='float')
+        dtype = rc.get('precision', 'dtype')
+        t1 = np.zeros((dimensions * 2, dimensions), dtype=dtype)
+        t2 = np.zeros((dimensions * 2, dimensions), dtype=dtype)
         for i in range(dimensions):
             t1[i * 2, i] = 1.0
             t2[i * 2 + 1, i] = 1.0

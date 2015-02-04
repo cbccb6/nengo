@@ -5,6 +5,7 @@ import numpy as np
 
 from nengo.dists import Distribution
 from nengo.processes import StochasticProcess
+from nengo.rc import rc
 from nengo.utils.compat import is_integer, is_number, is_string
 from nengo.utils.numpy import compare
 from nengo.utils.stdlib import checked_call
@@ -173,7 +174,7 @@ class NdarrayParam(Parameter):
     def validate(self, instance, ndarray):
         ndim = len(self.shape)
         try:
-            ndarray = np.asarray(ndarray, dtype=np.float64)
+            ndarray = np.asarray(ndarray, dtype=rc.get('precision', 'dtype'))
         except TypeError:
             raise ValueError("Must be a float NumPy array (got type '%s')"
                              % ndarray.__class__.__name__)

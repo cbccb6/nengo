@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import numpy as np
 
+from nengo.rc import rc
 from nengo.utils.compat import StringIO
 
 
@@ -298,7 +299,8 @@ class Signal(SignalView):
 
     def __init__(self, value, name=None):
         # Make sure we use a C-contiguous array
-        self._value = np.array(value, copy=False, order='C', dtype=np.float64)
+        self._value = np.array(
+            value, copy=False, order='C', dtype=rc.get('precision', 'dtype'))
         if name is not None:
             self._name = name
         if Signal.assert_named_signals:

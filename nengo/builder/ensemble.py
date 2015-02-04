@@ -10,6 +10,7 @@ from nengo.builder.signal import Signal
 from nengo.dists import Distribution
 from nengo.ensemble import Ensemble
 from nengo.neurons import Direct
+from nengo.rc import rc
 from nengo.utils.builder import default_n_eval_points
 
 
@@ -35,7 +36,7 @@ def gen_eval_points(ens, eval_points, rng, scale_eval_points=True):
                 and eval_points.shape[0] != ens.n_eval_points):
             warnings.warn("Number of eval_points doesn't match "
                           "n_eval_points. Ignoring n_eval_points.")
-        eval_points = np.array(eval_points, dtype=np.float64)
+        eval_points = np.array(eval_points, dtype=rc.get('precision', 'dtype'))
 
     if scale_eval_points:
         eval_points *= ens.radius  # scale by ensemble radius
@@ -46,6 +47,7 @@ def gen_eval_points(ens, eval_points, rng, scale_eval_points=True):
 def build_ensemble(model, ens):
     # Create random number generator
     rng = np.random.RandomState(model.seeds[ens])
+    dtype = rc.get('precision', 'dtype')
 
     eval_points = gen_eval_points(ens, ens.eval_points, rng=rng)
 
@@ -59,9 +61,9 @@ def build_ensemble(model, ens):
         encoders = np.identity(ens.dimensions)
     elif isinstance(ens.encoders, Distribution):
         encoders = ens.encoders.sample(ens.n_neurons, ens.dimensions, rng=rng)
-        encoders = np.asarray(encoders, dtype=np.float64)
+        encoders = np.asarray(encoders, dtype=dtype)
     else:
-        encoders = npext.array(ens.encoders, min_dims=2, dtype=np.float64)
+        encoders = npext.array(ens.encoders, min_dims=2, dtype=dtype)
     encoders /= npext.norm(encoders, axis=1, keepdims=True)
 
     # Determine max_rates and intercepts
