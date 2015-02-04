@@ -1,5 +1,11 @@
 import hashlib
 import os
+try:
+    import resource
+    HAS_RESOURCE = True
+except ImportError:
+    HAS_RESOURCE = False
+import sys
 
 import numpy as np
 import pytest
@@ -29,6 +35,27 @@ def pytest_addoption(parser):
                      help='Do not run examples')
     parser.addoption('--slow', action='store_true', default=False,
                      help='Also run slow tests.')
+    if HAS_RESOURCE:
+        group = parser.getgroup("terminal reporting",
+                                "reporting",
+                                after="general")
+        group.addoption(
+            '--memory', action='store_true', default=False,
+            help='Show memory consumed by Python after all tests are run')
+
+
+def pytest_terminal_summary(terminalreporter):
+    if not terminalreporter.config.option.memory:
+        return
+    # Calculate memory usage; details at
+    # http://fa.bianp.net/blog/2013/different-ways-to-get-memory-consumption-or-lessons-learned-from-memory_profiler/  # noqa
+    rusage_denom = 1024.
+    if sys.platform == 'darwin':
+        # ... it seems that in OSX the output is in different units ...
+        rusage_denom = rusage_denom * rusage_denom
+    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / rusage_denom
+    terminalreporter.write_sep("=", "total memory consumed: %.2f MiB" % mem)
+    terminalreporter.config.option.memory = False  # Ensure we only print once
 
 
 def pytest_runtest_setup(item):
