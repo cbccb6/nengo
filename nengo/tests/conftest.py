@@ -153,9 +153,21 @@ def pytest_addoption(parser):
 
 def pytest_runtest_setup(item):
     for mark, option, message in [
-            ('benchmark', 'benchmarks', "benchmarks not requested"),
             ('example', 'noexamples', "examples not requested"),
-            ('plot', 'plots', "plots not requested"),
             ('slow', 'slow', "slow tests not requested")]:
         if getattr(item.obj, mark, None) and not item.config.getvalue(option):
             pytest.skip(message)
+
+    if getattr(item.obj, 'noassertions', None):
+        skip = True
+        skipreasons = []
+        for fixture_name, option, message in [
+                ('analytics', 'benchmarks', "benchmarks not requested"),
+                ('plt', 'plots', "plots not requested")]:
+            if fixture_name in item.fixturenames:
+                if item.config.getvalue(option):
+                    skip = False
+                else:
+                    skipreasons.append(message)
+        if skip:
+            pytest.skip(" and ".join(skipreasons))
