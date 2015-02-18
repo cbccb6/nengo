@@ -1,7 +1,6 @@
 import numpy as np
 
 from nengo.builder.builder import Builder
-from nengo.builder.signal import Signal
 from nengo.builder.operator import Operator
 from nengo.synapses import Lowpass, Synapse
 from nengo.utils.compat import is_number
@@ -45,7 +44,7 @@ def filtered_signal(model, owner, sig, synapse):
 @Builder.register(Synapse)
 def build_synapse(model, synapse, owner, input_signal):
     model.sig[owner]['synapse_in'] = input_signal
-    model.sig[owner]['synapse_out'] = Signal(
+    model.sig[owner]['synapse_out'] = model.Signal(
         np.zeros(input_signal.shape),
         name="%s.%s" % (input_signal.name, synapse))
 

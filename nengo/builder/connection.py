@@ -7,7 +7,6 @@ from nengo.builder.builder import Builder
 from nengo.builder.ensemble import gen_eval_points
 from nengo.builder.node import build_pyfunc
 from nengo.builder.operator import DotInc, ElementwiseInc, PreserveValue, Reset
-from nengo.builder.signal import Signal
 from nengo.builder.synapses import filtered_signal
 from nengo.connection import Connection
 from nengo.ensemble import Ensemble, Neurons
@@ -125,9 +124,9 @@ def build_connection(model, conn):
         # Add operator for decoders
         decoders = decoders.T
 
-        model.sig[conn]['decoders'] = Signal(
+        model.sig[conn]['decoders'] = model.Signal(
             decoders, name="%s.decoders" % conn)
-        signal = Signal(np.zeros(signal_size), name=str(conn))
+        signal = model.Signal(np.zeros(signal_size), name=str(conn))
         model.add_op(Reset(signal))
         model.add_op(DotInc(model.sig[conn]['decoders'],
                             model.sig[conn]['in'],
@@ -143,7 +142,7 @@ def build_connection(model, conn):
 
     if conn.modulatory:
         # Make a new signal, effectively detaching from post
-        model.sig[conn]['out'] = Signal(
+        model.sig[conn]['out'] = model.Signal(
             np.zeros(model.sig[conn]['out'].size),
             name="%s.mod_output" % conn)
         model.add_op(Reset(model.sig[conn]['out']))
@@ -168,8 +167,8 @@ def build_connection(model, conn):
         else:
             transform *= gain[:, np.newaxis]
 
-    model.sig[conn]['transform'] = Signal(transform,
-                                          name="%s.transform" % conn)
+    model.sig[conn]['transform'] = model.Signal(transform,
+                                                name="%s.transform" % conn)
     if transform.ndim < 2:
         model.add_op(ElementwiseInc(model.sig[conn]['transform'],
                                     signal,

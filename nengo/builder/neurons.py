@@ -1,7 +1,6 @@
 import numpy as np
 
 from nengo.builder.builder import Builder
-from nengo.builder.signal import Signal
 from nengo.builder.operator import Operator
 from nengo.neurons import (AdaptiveLIF, AdaptiveLIFRate, Izhikevich, LIF,
                            LIFRate, RectifiedLinear, Sigmoid)
@@ -54,9 +53,9 @@ def build_lifrate(model, lifrate, neurons):
 
 @Builder.register(LIF)
 def build_lif(model, lif, neurons):
-    model.sig[neurons]['voltage'] = Signal(
+    model.sig[neurons]['voltage'] = model.Signal(
         np.zeros(neurons.size_in), name="%s.voltage" % neurons)
-    model.sig[neurons]['refractory_time'] = Signal(
+    model.sig[neurons]['refractory_time'] = model.Signal(
         np.zeros(neurons.size_in), name="%s.refractory_time" % neurons)
     model.add_op(SimNeurons(
         neurons=lif,
@@ -68,7 +67,7 @@ def build_lif(model, lif, neurons):
 
 @Builder.register(AdaptiveLIFRate)
 def build_alifrate(model, alifrate, neurons):
-    model.sig[neurons]['adaptation'] = Signal(
+    model.sig[neurons]['adaptation'] = model.Signal(
         np.zeros(neurons.size_in), name="%s.adaptation" % neurons)
     model.add_op(SimNeurons(neurons=alifrate,
                             J=model.sig[neurons]['in'],
@@ -78,11 +77,11 @@ def build_alifrate(model, alifrate, neurons):
 
 @Builder.register(AdaptiveLIF)
 def build_alif(model, alif, neurons):
-    model.sig[neurons]['voltage'] = Signal(
+    model.sig[neurons]['voltage'] = model.Signal(
         np.zeros(neurons.size_in), name="%s.voltage" % neurons)
-    model.sig[neurons]['refractory_time'] = Signal(
+    model.sig[neurons]['refractory_time'] = model.Signal(
         np.zeros(neurons.size_in), name="%s.refractory_time" % neurons)
-    model.sig[neurons]['adaptation'] = Signal(
+    model.sig[neurons]['adaptation'] = model.Signal(
         np.zeros(neurons.size_in), name="%s.adaptation" % neurons)
     model.add_op(SimNeurons(neurons=alif,
                             J=model.sig[neurons]['in'],
@@ -94,10 +93,10 @@ def build_alif(model, alif, neurons):
 
 @Builder.register(Izhikevich)
 def build_izhikevich(model, izhikevich, neurons):
-    model.sig[neurons]['voltage'] = Signal(
+    model.sig[neurons]['voltage'] = model.Signal(
         np.ones(neurons.size_in) * izhikevich.reset_voltage,
         name="%s.voltage" % neurons)
-    model.sig[neurons]['recovery'] = Signal(
+    model.sig[neurons]['recovery'] = model.Signal(
         np.ones(neurons.size_in)
         * izhikevich.reset_voltage
         * izhikevich.coupling, name="%s.recovery" % neurons)

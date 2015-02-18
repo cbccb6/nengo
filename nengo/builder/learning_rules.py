@@ -2,7 +2,6 @@ import numpy as np
 
 from nengo.builder.builder import Builder
 from nengo.builder.operator import DotInc, ElementwiseInc, Operator, Reset
-from nengo.builder.signal import Signal
 from nengo.builder.synapses import filtered_signal
 from nengo.connection import LearningRule
 from nengo.ensemble import Ensemble, Neurons
@@ -91,8 +90,8 @@ def build_bcm(model, bcm, rule):
     pre_filtered = filtered_signal(model, bcm, pre_activities, bcm.pre_tau)
     post_filtered = filtered_signal(model, bcm, post_activities, bcm.post_tau)
     theta = filtered_signal(model, bcm, post_filtered, bcm.theta_tau)
-    delta = Signal(np.zeros((post.n_neurons, pre.n_neurons)),
-                   name='BCM: Delta')
+    delta = model.Signal(np.zeros((post.n_neurons, pre.n_neurons)),
+                         name='BCM: Delta')
 
     model.add_op(SimBCM(pre_filtered, post_filtered, theta, delta,
                         learning_rate=bcm.learning_rate))
@@ -119,8 +118,8 @@ def build_oja(model, oja, rule):
     post_activities = model.sig[post.neurons]['out']
     pre_filtered = filtered_signal(model, oja, pre_activities, oja.pre_tau)
     post_filtered = filtered_signal(model, oja, post_activities, oja.post_tau)
-    delta = Signal(np.zeros((post.n_neurons, pre.n_neurons)),
-                   name='Oja: Delta')
+    delta = model.Signal(np.zeros((post.n_neurons, pre.n_neurons)),
+                         name='Oja: Delta')
 
     model.add_op(SimOja(pre_filtered, post_filtered, transform, delta,
                         learning_rate=oja.learning_rate, beta=oja.beta))
@@ -141,11 +140,12 @@ def build_pes(model, pes, rule):
     activities = model.sig[conn.pre_obj]['out']
     error = model.sig[pes.error_connection]['out']
 
-    scaled_error = Signal(np.zeros(error.shape),
-                          name="PES:error * learning_rate")
+    scaled_error = model.Signal(np.zeros(error.shape),
+                                name="PES:error * learning_rate")
     scaled_error_view = scaled_error.reshape((error.size, 1))
     activities_view = activities.reshape((1, activities.size))
-    lr_sig = Signal(pes.learning_rate * model.dt, name="PES:learning_rate")
+    lr_sig = model.Signal(pes.learning_rate * model.dt,
+                          name="PES:learning_rate")
 
     model.add_op(Reset(scaled_error))
     model.add_op(DotInc(lr_sig, error, scaled_error, tag="PES:scale error"))
@@ -157,8 +157,8 @@ def build_pes(model, pes, rule):
                 else conn.post_obj)
         transform = model.sig[conn]['transform']
         encoders = model.sig[post]['encoders']
-        encoded_error = Signal(np.zeros(transform.shape[0]),
-                               name="PES: encoded error")
+        encoded_error = model.Signal(np.zeros(transform.shape[0]),
+                                     name="PES: encoded error")
 
         model.add_op(Reset(encoded_error))
         model.add_op(DotInc(

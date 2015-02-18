@@ -3,7 +3,7 @@ import warnings
 
 import numpy as np
 
-from nengo.builder.signal import SignalDict
+from nengo.builder.signal import Signal, SignalDict
 from nengo.cache import NoDecoderCache
 from nengo.rc import rc
 
@@ -30,6 +30,9 @@ class Model(object):
 
     def __str__(self):
         return "Model: %s" % self.label
+
+    def Signal(self, value, name=None):
+        return Signal(value, name=name)
 
     def build(self, *objs):
         return Builder.build(self, *objs)

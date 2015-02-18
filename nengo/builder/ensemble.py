@@ -6,7 +6,6 @@ import numpy as np
 import nengo.utils.numpy as npext
 from nengo.builder.builder import Builder
 from nengo.builder.operator import Copy, DotInc, Reset, SimNoise
-from nengo.builder.signal import Signal
 from nengo.dists import Distribution
 from nengo.ensemble import Ensemble
 from nengo.neurons import Direct
@@ -52,8 +51,8 @@ def build_ensemble(model, ens):
     eval_points = gen_eval_points(ens, ens.eval_points, rng=rng)
 
     # Set up signal
-    model.sig[ens]['in'] = Signal(np.zeros(ens.dimensions),
-                                  name="%s.signal" % ens)
+    model.sig[ens]['in'] = model.Signal(
+        np.zeros(ens.dimensions), name="%s.signal" % ens)
     model.add_op(Reset(model.sig[ens]['in']))
 
     # Set up encoders
@@ -83,16 +82,16 @@ def build_ensemble(model, ens):
         gain, bias = ens.neuron_type.gain_bias(max_rates, intercepts)
 
     if isinstance(ens.neuron_type, Direct):
-        model.sig[ens.neurons]['in'] = Signal(
+        model.sig[ens.neurons]['in'] = model.Signal(
             np.zeros(ens.dimensions), name='%s.neuron_in' % ens)
         model.sig[ens.neurons]['out'] = model.sig[ens.neurons]['in']
         model.add_op(Reset(model.sig[ens.neurons]['in']))
     else:
-        model.sig[ens.neurons]['in'] = Signal(
+        model.sig[ens.neurons]['in'] = model.Signal(
             np.zeros(ens.n_neurons), name="%s.neuron_in" % ens)
-        model.sig[ens.neurons]['out'] = Signal(
+        model.sig[ens.neurons]['out'] = model.Signal(
             np.zeros(ens.n_neurons), name="%s.neuron_out" % ens)
-        model.add_op(Copy(src=Signal(bias, name="%s.bias" % ens),
+        model.add_op(Copy(src=model.Signal(bias, name="%s.bias" % ens),
                           dst=model.sig[ens.neurons]['in']))
         # This adds the neuron's operator and sets other signals
         model.build(ens.neuron_type, ens.neurons)
@@ -103,7 +102,7 @@ def build_ensemble(model, ens):
     else:
         scaled_encoders = encoders * (gain / ens.radius)[:, np.newaxis]
 
-    model.sig[ens]['encoders'] = Signal(
+    model.sig[ens]['encoders'] = model.Signal(
         scaled_encoders, name="%s.scaled_encoders" % ens)
 
     # Inject noise if specified

@@ -4,7 +4,6 @@ import numpy as np
 
 import nengo.utils.numpy as npext
 from nengo.builder.builder import Builder
-from nengo.builder.signal import Signal
 from nengo.network import Network
 from nengo.utils.compat import is_iterable, itervalues
 
@@ -35,8 +34,8 @@ def build_network(model, network):
 
     if model.toplevel is None:
         model.toplevel = network
-        model.sig['common'][0] = Signal(0.0, name='Common: Zero')
-        model.sig['common'][1] = Signal(1.0, name='Common: One')
+        model.sig['common'][0] = model.Signal(0.0, name='Common: Zero')
+        model.sig['common'][1] = model.Signal(1.0, name='Common: One')
         model.seeds[network] = get_seed(network, np.random)
 
     # Set config

@@ -2,7 +2,6 @@ import numpy as np
 
 from nengo.builder.builder import Builder
 from nengo.builder.operator import Reset
-from nengo.builder.signal import Signal
 from nengo.builder.synapses import filtered_signal
 from nengo.connection import Connection, LearningRule
 from nengo.ensemble import Ensemble, Neurons
@@ -19,7 +18,8 @@ def conn_probe(model, probe):
     model.seeds[conn] = model.seeds[probe]
 
     # Make a sink signal for the connection
-    model.sig[probe]['in'] = Signal(np.zeros(conn.size_out), name=str(probe))
+    model.sig[probe]['in'] = model.Signal(
+        np.zeros(conn.size_out), name=str(probe))
     model.add_op(Reset(model.sig[probe]['in']))
 
     # Build the connection
