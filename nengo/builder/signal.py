@@ -297,10 +297,9 @@ class Signal(SignalView):
     # up in a model.
     assert_named_signals = False
 
-    def __init__(self, value, name=None):
+    def __init__(self, value, name=None, dtype=rc.get('precision', 'dtype')):
         # Make sure we use a C-contiguous array
-        self._value = np.array(
-            value, copy=False, order='C', dtype=rc.get('precision', 'dtype'))
+        self._value = np.array(value, copy=False, order='C', dtype=dtype)
         if name is not None:
             self._name = name
         if Signal.assert_named_signals:

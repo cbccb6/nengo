@@ -59,7 +59,8 @@ class ProbeDict(Mapping):
 class Simulator(object):
     """Reference simulator for Nengo models."""
 
-    def __init__(self, network, dt=0.001, seed=None, model=None):
+    def __init__(self, network, dt=0.001, seed=None, model=None,
+                 dtype=rc.get('precision', 'dtype')):
         """Initialize the simulator with a network and (optionally) a model.
 
         Most of the time, you will pass in a network and sometimes a dt::
@@ -103,7 +104,8 @@ class Simulator(object):
         if model is None:
             self.model = Model(dt=dt,
                                label="%s, dt=%f" % (network, dt),
-                               decoder_cache=get_default_decoder_cache())
+                               decoder_cache=get_default_decoder_cache(),
+                               dtype=dtype)
         else:
             self.model = model
 
@@ -117,8 +119,7 @@ class Simulator(object):
         self.rng = np.random.RandomState(self.seed)
 
         # -- map from Signal.base -> ndarray
-        dtype = rc.get('precision', 'dtype')
-        self.signals = SignalDict(__time__=np.asarray(0.0, dtype=dtype))
+        self.signals = SignalDict(__time__=np.asarray(0.0, dtype=self.dtype))
         for op in self.model.operators:
             op.init_signals(self.signals)
 
@@ -146,6 +147,10 @@ class Simulator(object):
         raise AttributeError("Cannot change simulator 'dt'. Please file "
                              "an issue at http://github.com/nengo/nengo"
                              "/issues and describe your use case.")
+
+    @property
+    def dtype(self):
+        return self.model.dtype
 
     @property
     def time(self):

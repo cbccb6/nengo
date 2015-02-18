@@ -9,7 +9,7 @@ from nengo.builder import Model
 from nengo.builder.node import build_pyfunc
 from nengo.builder.operator import Copy, Reset, DotInc, SimNoise
 from nengo.builder.signal import Signal
-from nengo.utils.compat import range
+from nengo.utils.compat import range, iteritems
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,19 @@ def test_time_steps(RefSimulator):
     assert np.allclose(sim.signals["__time__"], 0.001)
     sim.step()
     assert np.allclose(sim.signals["__time__"], 0.002)
+
+
+@pytest.mark.parametrize('dtype', [np.float16, np.float32, np.float64])
+def test_dtype(RefSimulator, seed, dtype):
+    with nengo.Network() as model:
+        u = nengo.Node([0.5, -0.4])
+        a = nengo.Ensemble(10, 2)
+        nengo.Connection(u, a)
+        nengo.Probe(a)
+
+    sim = RefSimulator(model, dtype=dtype)
+    for k, v in iteritems(sim.signals):
+        assert v.dtype == dtype, "Signal '%s', wrong dtype" % k
 
 
 def test_time_absolute(Simulator):

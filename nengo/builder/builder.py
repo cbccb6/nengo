@@ -11,10 +11,12 @@ from nengo.rc import rc
 class Model(object):
     """Output of the Builder, used by the Simulator."""
 
-    def __init__(self, dt=0.001, label=None, decoder_cache=NoDecoderCache()):
+    def __init__(self, dt=0.001, label=None, decoder_cache=NoDecoderCache(),
+                 dtype=rc.get('precision', 'dtype')):
         self.dt = dt
         self.label = label
         self.decoder_cache = decoder_cache
+        self.dtype = dtype
 
         # We want to keep track of the toplevel network
         self.toplevel = None
@@ -31,8 +33,9 @@ class Model(object):
     def __str__(self):
         return "Model: %s" % self.label
 
-    def Signal(self, value, name=None):
-        return Signal(value, name=name)
+    def Signal(self, value, name=None, dtype=None):
+        dtype = self.dtype if dtype is None else dtype
+        return Signal(value, name=name, dtype=dtype)
 
     def build(self, *objs):
         return Builder.build(self, *objs)
@@ -40,8 +43,7 @@ class Model(object):
     def add_op(self, op):
         self.operators.append(op)
         # Fail fast by trying make_step with a temporary sigdict
-        signals = SignalDict(__time__=np.asarray(
-            0.0, dtype=rc.get('precision', 'dtype')))
+        signals = SignalDict(__time__=np.asarray(0.0, dtype=self.dtype))
         op.init_signals(signals)
         op.make_step(signals, self.dt, np.random)
 
